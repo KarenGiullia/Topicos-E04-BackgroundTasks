@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import java.io.IOException;
 
@@ -21,14 +22,30 @@ public class MainActivity extends AppCompatActivity {
         Button downloadBtn = findViewById(R.id.btn_download);
         EditText txtLink = findViewById(R.id.txt_img_link);
         ImageView imgView = findViewById(R.id.img_picture);
+        ProgressBar progressBar = findViewById(R.id.progress_bar);
 
 //        TODO[1]: Processo de download e carregamento da imagem acontecendo na Main Thread, ALTERAR!!
         downloadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // TODO[2]: Exibir barra de progresso quando estiver fazendo download da imagem
-                Bitmap img = MainActivity.this.downloadImage(txtLink.getText().toString());
-                imgView.setImageBitmap(img);
+                progressBar.setVisibility(View.VISIBLE);
+                imgView.setVisibility(View.GONE);
+                String url = txtLink.getText().toString();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Bitmap img = null;
+                        img = downloadImage(url);
+                        if(img != null){
+                            imgView.setImageBitmap(img);
+                            imgView.setVisibility(View.VISIBLE);
+                            progressBar.setVisibility(View.GONE);
+                        }else{
+                            Log.e("MainActivity", "Não foi possível carregar");
+                        }
+                    }
+                }).start();
             }
         });
     }
